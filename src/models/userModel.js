@@ -13,6 +13,6 @@ const UserSchema = new mongoose.Schema(
       pincode: {type:String}
     },
 },
-    {timestamp:true}
+    {timestamps:true}
 )
 module.exports = mongoose.model('Users',UserSchema)
