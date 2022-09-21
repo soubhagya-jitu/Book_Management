@@ -92,7 +92,7 @@ const getBooksDetail =async function(req,res){
         bookCheck=bookCheck.toObject();
         bookCheck["reviewsData"]=reviews
 
-        return res.status(200).send({status:true,data:getBookCheck})
+        return res.status(200).send({status:true,data:bookCheck})
 
     }catch(err){
         res.status(500).send({status:false,msg:err.message})
