@@ -1,6 +1,7 @@
 const { default: mongoose } = require("mongoose")
 const bookModel = require('../models/bookModel')
 const userModel = require('../models/userModel')
+const reviewModel = require('../models/reviewModel')
 
 let regexValidation = /^[a-zA-Z]+([\s][a-zA-Z]+)*$/;
 let regexValidISBM = /^[\d*\-]{10}|[\d*\-]{13}$/;
@@ -71,6 +72,28 @@ const getBooks = async function (req, res) {
         res.status(500).send({ status: false, msg: error.message })
     }
 }
+const getBooksDetail =async function(req,res){
+    try{
+        let bookId= req.params.bookId
+        if(!bookId) return res.status(400).send({status:false,msg:"enter bookId to get the document"})
+        if (!mongoose.Types.ObjectId.isValid(bookId)) {
+            return res.status(400).send({ status: false, msg: "bookid validation failed" })
+        }
+        
+        let bookCheck = await bookModel.findById(bookId)
+        if(!bookCheck) return res.status(404).send({status:false,msg:"book not found"})
 
-module.exports = { createbook,getBooks }
+        let reviews = await reviewModel.find({_id:bookId}).select({_id:1,bookId:1,reviewedBy:1,reviewedAt:1,rating:1,review:1})
+        
+        bookCheck=bookCheck.toObject();
+        bookCheck["reviewsData"]=reviews
+
+        return res.status(200).send({status:true,data:getBookCheck})
+
+    }catch(err){
+        res.status(500).send({status:false,msg:err.message})
+    }
+}
+
+module.exports = { createbook,getBooks,getBooksDetail}
  
