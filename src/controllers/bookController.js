@@ -6,14 +6,17 @@ const reviewModel = require('../models/reviewModel')
 
 let regexValidation = /^[a-zA-Z]+([\s][a-zA-Z]+)*$/;
 let regexValidISBM = /^[\d*\-]{10}|[\d*\-]{13}$/;
-let regexValidReleasedAt =/^[0-9]{4}[-]{1}[0-9]{2}[-]{1}[0-9]{2}/;
+let regexValidReleasedAt = /^[0-9]{4}[-]{1}[0-9]{2}[-]{1}[0-9]{2}/;
+
+let timeElapsed = Date.now();
+let today = new Date(timeElapsed);
 
 const createbook = async function (req, res) {
     try {
         let data = req.body
         if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "plzz give some data" });
 
-        const { title, excerpt, userId, ISBN, category, subcategory ,releasedAt} = data
+        const { title, excerpt, userId, ISBN, category, subcategory, releasedAt } = data
 
         if (!title) return res.status(400).send({ status: false, message: "Enter title" });
         if (!excerpt) return res.status(400).send({ status: false, message: "Enter excerpt" });
@@ -22,7 +25,7 @@ const createbook = async function (req, res) {
         if (!category) return res.status(400).send({ status: false, message: "Enter category" });
         if (!subcategory) return res.status(400).send({ status: false, message: "Enter subcategory" });
         if (!releasedAt) return res.status(400).send({ status: false, message: "Enter releasedAt" });
-        
+
 
         if (!title.match(regexValidation)) return res.status(400).send({ status: false, message: "please enter a valid title" })
         if (!ISBN.match(regexValidISBM)) return res.status(400).send({ status: false, message: "please enter a valid ISBM" })
@@ -134,6 +137,28 @@ const putBooks = async function(req,res) {
     }
 }
 
-module.exports = { createbook,getBooks,getBooksDetail,putBooks}
+
+const deleteBookParam = async function (req, res) {
+    try {
+        let data = req.params
+        if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "plzz give some data" });
+    
+        bookId= data.bookId
+        if (!mongoose.Types.ObjectId.isValid(bookId)) return res.status(400).send({ status: false, message: "userId is not Valid" });
+        
+        let findBooks = await bookModel.findById(bookId)
+        if (!findBooks) return res.status(400).send({ status: false, msg: "Invalid ID" })
+        
+        if (findBooks.isDeleted) return res.status(404).send({ status: false, msg: "Books already deleted" })
+
+        let deleteBook = await bookModel.updateOne((findBooks), { $set: { isDeleted: true, deletedAt: today } })
+        return res.status(200).send({ status: true, data: deleteBook })
+    }
+    catch (error) {
+        res.status(500).send({ status: false, msg: error.message })
+    }
+}
+
+module.exports = { createbook,getBooks,getBooksDetail,putBooks,deleteBookParam}
 
  
