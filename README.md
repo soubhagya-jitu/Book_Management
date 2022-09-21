@@ -49,10 +49,14 @@ Create a user - atleast 5 users
 Create a user document from request body.
 Return HTTP status 201 on a succesful user creation. Also return the user document. The response should be a JSON object like this
 Return HTTP status 400 if no params or invalid params received in request body. The response should be a JSON object like this
+
+
 POST /login
 Allow an user to login with their email and password.
 On a successful login attempt return a JWT token contatining the userId, exp, iat. The response should be a JSON object like this
 If the credentials are incorrect return a suitable error message with a valid HTTP status code. The response should be a JSON object like this
+
+
 Books API
 POST /books
 Create a book document from request body. Get userId in request body only.
@@ -60,6 +64,8 @@ Make sure the userId is a valid userId by checking the user exist in the users c
 Return HTTP status 201 on a succesful book creation. Also return the book document. The response should be a JSON object like this
 Create atleast 10 books for each user
 Return HTTP status 400 for an invalid request with a response body like this
+
+
 GET /books
 Returns all books in the collection that aren't deleted. Return only book _id, title, excerpt, userId, category, releasedAt, reviews field. Response example here
 Return the HTTP status 200 if any documents are found. The response structure should be like this
@@ -69,6 +75,8 @@ By userId
 By category
 By subcategory example of a query url: books?filtername=filtervalue&f2=fv2
 Return all books sorted by book name in Alphabatical order
+
+
 GET /books/:bookId
 Returns a book with complete details including reviews. Reviews array would be in the form of Array. Response example here
 Return the HTTP status 200 if any documents are found. The response structure should be like this
@@ -84,10 +92,14 @@ Make sure the unique constraints are not violated when making the update
 Check if the bookId exists (must have isDeleted false and is present in collection). If it doesn't, return an HTTP status 404 with a response body like this
 Return an HTTP status 200 if updated successfully with a body like this
 Also make sure in the response you return the updated book document.
+
+
 DELETE /books/:bookId
 Check if the bookId exists and is not deleted. If it does, mark it deleted and return an HTTP status 200 with a response body with status and message.
 If the book document doesn't exist then return an HTTP status of 404 with a body like this
 Review APIs
+
+
 POST /books/:bookId/review
 Add a review for the book in reviews collection.
 Check if the bookId exists and is not deleted before adding the review. Send an error response with appropirate status code like this if the book does not exist
