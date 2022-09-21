@@ -103,6 +103,7 @@ const putBooks = async function(req,res) {
     let {title,excerpt,releasedAt,ISBN} = requestBody
 
     if (!title.match(regexValidation)) return res.status(400).send({ status: false, message: "please enter a valid title" })
+    if (!excerpt.match(regexValidation)) return res.status(400).send({ status: false, message: "please enter a valid excerpt" })
     if (!ISBN.match(regexValidISBM)) return res.status(400).send({ status: false, message: "please enter a valid ISBM" })
     if (!releasedAt.match(regexValidReleasedAt)) return res.status(400).send({ status: false, message: "please enter a valid Date('YYYY-MM-DD')" })
 
