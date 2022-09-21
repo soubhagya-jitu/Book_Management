@@ -1,12 +1,10 @@
+const { default: mongoose } = require("mongoose")
 const bookModel = require('../models/bookModel')
 const userModel = require('../models/userModel')
-const mongoose = require('mongoose');
 
 let regexValidation = /^[a-zA-Z]+([\s][a-zA-Z]+)*$/;
 let regexValidISBM = /^[\d*\-]{10}|[\d*\-]{13}$/;
 let regexValidReleasedAt =/^[0-9]{4}[-]{1}[0-9]{2}[-]{1}[0-9]{2}/;
-
-
 
 const createbook = async function (req, res) {
     try {
@@ -40,11 +38,39 @@ const createbook = async function (req, res) {
 
         const book = await bookModel.create(data)
         res.status(201).send({ status: true, data: book })
-        console.log(data)
 
     } catch (error) {
         res.status(500).send({ status: false, message: error.message })
     }
 }
 
-module.exports = { createbook }
+const getBooks = async function (req, res) {
+    try {
+        let requestQuery = req.query
+        let requestBody = req.body
+        if (Object.keys(requestBody).length > 0) {
+            return res.status(400).send({ status: false, msg: "Please enter the filters in requestQuery only" })
+        }
+        if (Object.keys(requestQuery).length == 0) {
+            return res.status(400).send({ status: false, msg: "Please input the required filters" })
+        }
+        if (Object.keys(requestQuery).length > 3) {
+            return res.status(400).send({ status: false, msg: "Invalid entry in requestQuery" })
+        }
+        if (requestQuery.userId) {
+            if (!mongoose.Types.ObjectId.isValid(requestQuery.userId)) {
+                return res.status(400).send({ status: false, msg: "userid validation failed" })
+            }
+        }
+        let findBooks = await bookModel.find({ isDeleted: false, ...requestQuery }).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 }).sort({ title: 1 })
+        if (!findBooks) {
+            return res.status(404).send({ status: false, msg: "No books found by the given filters" })
+        }
+        res.status(200).send({ status: true, message: "Books list", data: findBooks })
+    } catch (error) {
+        res.status(500).send({ status: false, msg: error.message })
+    }
+}
+
+module.exports = { createbook,getBooks }
+ 
