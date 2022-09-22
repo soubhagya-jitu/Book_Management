@@ -150,10 +150,10 @@ const putBooks = async function (req, res) {
 
 const deleteBookParam = async function (req, res) {
     try {
-        let requestQuery = req.params
-        if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "plzz give some data" });
+        let requestparams = req.params
+        if (Object.keys(requestparams).length == 0) return res.status(400).send({ status: false, message: "plzz give BookId" });
 
-        bookId = requestQuery.bookId
+        bookId = requestparams.bookId
         if (!mongoose.Types.ObjectId.isValid(bookId)) return res.status(400).send({ status: false, message: "bookId is not Valid" });
 
         let findBooks = await bookModel.findById(bookId)
