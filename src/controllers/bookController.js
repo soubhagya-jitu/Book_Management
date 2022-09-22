@@ -1,5 +1,6 @@
 const { default: mongoose } = require("mongoose");
 const { updateMany } = require("../models/bookModel");
+const moment = require('moment')
 const bookModel = require('../models/bookModel')
 const userModel = require('../models/userModel')
 const reviewModel = require('../models/reviewModel')
@@ -16,7 +17,7 @@ const createbook = async function (req, res) {
         let data = req.body
         if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "plzz give some data" });
 
-        const { title, excerpt, userId, ISBN, category, subcategory, releasedAt } = data
+        let { title, excerpt, userId, ISBN, category, subcategory, releasedAt } = data
 
         if (!title) return res.status(400).send({ status: false, message: "Enter title" });
         if (!excerpt) return res.status(400).send({ status: false, message: "Enter excerpt" });
