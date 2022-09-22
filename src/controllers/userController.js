@@ -1,6 +1,7 @@
-
 const UserModel = require("../models/userModel");
 const jwt = require("jsonwebtoken");
+
+//=========================================  CREATE USER  ==================================================================
 
 const createUser = async function (req, res) {
   try {
@@ -9,13 +10,13 @@ const createUser = async function (req, res) {
 
     if (!Object.keys(requestBody).length) return res.send({ status: false, msg: "Enter some data" })
 
-    //title validation
-    if (!title) return res.status(400).send({ status: false, msg: "title is mandatory" })
-    if (title != "Mr" && title != "Mrs" && title != "Miss") return res.status(400).send({ status: false, msg: `title can contain only "Mr","Mrs" os "Miss"` })
+        //title validation
+        if (!title) return res.status(400).send({ status: false, msg: "title is mandatory" })
+        if (title != "Mr" && title != "Mrs" && title != "Miss") return res.status(400).send({ status: false, msg: `title can contain only "Mr","Mrs" os "Miss"` })
 
-    //Name validation
-    if (!name) return res.status(400).send({ status: false, msg: "name is mandatory" })
-    if (!(/^[a-zA-Z\. ]*$/).test(name)) return res.status(400).send({ status: false, msg: "name is not valid" })
+        //Name validation
+        if (!name) return res.status(400).send({ status: false, msg: "name is mandatory" })
+        if (!(/^[a-zA-Z\. ]*$/).test(name)) return res.status(400).send({ status: false, msg: "name is not valid" })
 
     //Phone validation
     if (!phone) return res.status(400).send({ status: false, msg: "phone is mandatory" })
@@ -48,54 +49,48 @@ const createUser = async function (req, res) {
 }
 
 const isValid = function (value) {
-  if (typeof value == "undefined" || value == null) return false;
-  if (typeof value == "string" && value.trim().length > 0) return true;
+    if (typeof value == "undefined" || value == null) return false;
+    if (typeof value == "string" && value.trim().length > 0) return true;
 };
 
 const isValidRequestBody = function (object) {
-  return Object.keys(object).length > 0;
+    return Object.keys(object).length > 0;
 };
-
 
 const userLogin = async function (req, res) {
 
-  try {
-    const requestBody = req.body;
+    try {
+        const requestBody = req.body;
 
-    if (!isValidRequestBody(requestBody)) {
-      return res
-        .status(400)
-        .send({ status: false, message: "please provide input credentials" });
+        if (!isValidRequestBody(requestBody)) {
+            return res.status(400).send({ status: false, message: "please provide input credentials" });
+        }
+
+        const userName = requestBody.email;
+        const password = requestBody.password;
+
+        // validating userName 
+        if (!isValid(userName)) { return res.status(400).send({ status: false, message: "email is required" }); }
+
+        //validating password
+        if (!isValid(password)) { return res.status(400).send({ status: false, message: "password is required" }); }
+
+        const loginUser = await UserModel.findOne({ email: userName, password: password, });
+        if (!loginUser) { return res.status(404).send({ status: false, message: "invalid login credentials" }); }
+
+        const userID = loginUser._id;
+        const payLoad = { userId: userID };
+        const secretKey = "rass!@#512345ssar767";
+
+        // creating JWT
+        const token = jwt.sign(payLoad, secretKey, { expiresIn: "100s" });
+
+        res.status(200).send({ status: true, message: "login successful", data: token });
+
+    } catch (err) {
+        res.status(500).send({ error: err.message });
     }
 
-    const userName = requestBody.email;
-    const password = requestBody.password;
-
-    // validating userName and password
-    if (!isValid(userName)) { return res.status(400).send({ status: false, message: "email is required" }); }
-    if (!isValid(password)) { return res.status(400).send({ status: false, message: "password is required" }); }
-
-    const loginUser = await UserModel.findOne({ email: userName, password: password, });
-
-    if (!loginUser) { return res.status(404).send({ status: false, message: "invalid login credentials" }); }
-
-
-    const userID = loginUser._id;
-    const payLoad = { userId: userID };
-    const secretKey = "rass!@#512345ssar767";
-
-    // creating JWT
-    const token = jwt.sign(payLoad, secretKey, { expiresIn: "100s" });
-
-    //res.header("x-api-key", token);
-
-    res
-      .status(200)
-      .send({ status: true, message: "login successful", data: token });
-
-  } catch (err) { res.status(500).send({ error: err.message }); }
-};
-
-
+  }
 module.exports = { createUser, userLogin }
 
