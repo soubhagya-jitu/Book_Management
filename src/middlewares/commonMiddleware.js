@@ -1,9 +1,32 @@
 const jwt = require("jsonwebtoken")
-const { default: mongoose } = require("mongoose")
+const { default: mongoose } = require("mongoose");
+const bookModel = require("../models/bookModel");
 
+//========================================== Authentication ============================================//
 
-const authentication = async function(req,res,next) {
+const authentication = function(req,res,next){
+    try{
+        let token = req.headers["x-api-key"];
+        if(!token) return res.status(401).send({status:false,msg:" token must be present "})
+       
+        let decodedToken = jwt.verify(token,"rass!@#512345ssar767")
+        if(!decodedToken) return res.status(403).send({status:false,msg:"token is invalid"});
+        req.decodedToken = decodedToken
+        next()
+
+    }catch(err){
+        res.status(500).send({status:false,msg:err.message})
+    }
+}
+
+//========================================== Authorisation ============================================//
+
+const authorisation = async function(req,res,next) {
     let bookId = req.params.bookId
     if(!mongoose.Types.ObjectId.isValid(bookId)) return res.status(400).send({status:false,msg:"bookId validation failed"})
-    let find
+    let findBookId = await bookModel.findById(bookId) 
+    let userId = findBookId.userId.toString()
+    if(req.decodeToken.userId != userId) return res.status(400).send({status:false,msg:"The user is not authorised"})
+    next()
 }
+module.exports = {authentication,authorisation}
