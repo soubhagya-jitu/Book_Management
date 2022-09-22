@@ -8,6 +8,7 @@ let regexValidation = /^[\s]*[a-zA-z]+([\s\,\-]*[a-zA-z]+)*[\s]*$/;
 let regexValidISBN = /^[6-9]{3}[\-][\d]{10}$/;
 let regexValidReleasedAt = /^[0-9]{4}[-]{1}[0-9]{2}[-]{1}[0-9]{2}/;
 
+
 let timeElapsed = Date.now();
 let today = new Date(timeElapsed);
 
@@ -29,8 +30,9 @@ const createbook = async function (req, res) {
         if (!subcategory) return res.status(400).send({ status: false, message: "Enter subcategory" });
         if (!releasedAt) return res.status(400).send({ status: false, message: "Enter releasedAt" });
 
-        if(req.decodeToken.userId!=userId) return res.status(403).send({status:false,msg:"you can't create a book by someone else userId"})
+        if(req.decodedToken.userId!=userId) return res.status(403).send({status:false,msg:"you can't create a book by someone else userId"})
 
+        
         // Validation
         if (!title.match(regexValidation)) return res.status(400).send({ status: false, message: "please enter a valid title" })
         if (!excerpt.match(regexValidation)) return res.status(400).send({ status: false, message: "please enter a valid excerpt" })
@@ -71,7 +73,7 @@ const getBooks = async function (req, res) {
                 return res.status(400).send({ status: false, msg: "userid validation failed" })
             }
         }
-        let findBooks = await bookModel.find({ isDeleted: false, ...requestQuery }).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 }).sort({ title: 1 })
+        let findBooks = await bookModel.find({ isDeleted: false, ...requestQuery }).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 }).sort({title:1})
         if (!findBooks) {
             return res.status(404).send({ status: false, msg: "No books found by the given filters" })
         }
