@@ -13,6 +13,4 @@ router.get("/books/:bookId",bookController.getBooksDetail)
 router.put("/books/:bookId",bookController.putBooks)
 router.delete("/books/:bookId",bookController.deleteBookParam)
 
-
-
 module.exports = router;
