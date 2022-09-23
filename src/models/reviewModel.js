@@ -6,7 +6,7 @@ const reviewSchema = new mongoose.Schema(
         bookId: {type:ObjectId, require:true, ref:'Books'},
         reviewedBy: {type:String, require:true, default: 'Guest'},
         reviewedAt: {type:Date, require:true},
-        rating: {type:Number,enum:[1,2,3,4,5] ,require:true},
+        rating: {type:Number,require:true},
         review: {type:String},
         isDeleted: {type:Boolean, default: false},
       },

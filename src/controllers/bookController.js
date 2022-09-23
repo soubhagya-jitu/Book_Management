@@ -6,7 +6,7 @@ const reviewModel = require('../models/reviewModel')
 let regexValidation = /^[\s]*[a-zA-z]+([\s\,\-]*[a-zA-z]+)*[\s]*$/;
 let regexValidISBN = /^[6-9]{3}[\-][\d]{10}$/;
 let regexValidReleasedAt = /^[0-9]{4}[-]{1}[0-9]{2}[-]{1}[0-9]{2}/;
-
+let regexforTitle = /^[a-zA-z]+/
 let timeElapsed = Date.now();
 let today = new Date(timeElapsed);
 
