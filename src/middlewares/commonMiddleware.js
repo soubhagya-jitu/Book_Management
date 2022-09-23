@@ -26,7 +26,7 @@ const authorisation = async function(req,res,next) {
     if(!mongoose.Types.ObjectId.isValid(bookId)) return res.status(400).send({status:false,msg:"bookId validation failed"})
     let findBookId = await bookModel.findById(bookId) 
     let userId = findBookId.userId.toString()
-    if(req.decodeToken.userId != userId) return res.status(400).send({status:false,msg:"The user is not authorised"})
+    if(req.decodedToken.userId != userId) return res.status(400).send({status:false,msg:"The user is not authorised"})
     next()
 }
 module.exports = {authentication,authorisation}

@@ -1,14 +1,17 @@
 const UserModel = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 
+let pincodeValidation = /^[1-9]{1}[0-9]{5}|[1-9]{1}[0-9]{3}\\s[0-9]{3}/
+
 //=========================================  CREATE USER  ==================================================================
 
 const createUser = async function (req, res) {
   try {
     let requestBody = req.body;
-    const { title, name, phone, email, password } = requestBody //Destructuring
+    const { title, name, phone, email, password,address } = requestBody //Destructuring
 
     if (!Object.keys(requestBody).length) return res.send({ status: false, msg: "Enter some data" })
+
 
         //title validation
         if (!title) return res.status(400).send({ status: false, msg: "title is mandatory" })
@@ -21,7 +24,7 @@ const createUser = async function (req, res) {
     //Phone validation
     if (!phone) return res.status(400).send({ status: false, msg: "phone is mandatory" })
     if (!(/^[\s]*[6-9]\d{9}[\s]*$/gi).test(phone)) {
-      return res.status(400).send({ status: false, msg: "phone number is invalid , it should be starting with 6-9" })
+      return res.status(400).send({ status: false, msg: "phone number is invalid , it should be starting with 6-9 and having 10 digits" })
     }
     let phoneCheck = await UserModel.findOne({ phone: phone })
     if (phoneCheck) return res.status(409).send({ status: false, msg: "phone number is already used" })
@@ -37,10 +40,12 @@ const createUser = async function (req, res) {
     //Password validation
     if (!password) return res.status(400).send({ status: false, msg: "password is mandatory" })
     if (!(/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,15}$/).test(password)) {
-      return res.status(400).send({ status: false, message: "password is invalid ,it should be of minimum 8 digits and maximum of 15 and should have atleast one special character" })
+      return res.status(400).send({ status: false, message: "password is invalid ,it should be of minimum 8 digits and maximum of 15 and should have atleast one special character and one number & one uppercase letter" })
     }
-
-    let created = await UserModel.create(data)
+    if(address) {
+    if(!address.pincode.match(pincodeValidation)) return res.status(400).send({ status: false, message: "please enter a valid pincode" })
+    }
+    let created = await UserModel.create(requestBody)
     res.status(201).send({ status: true,msg:"User successfully created",data: created })
   }
   catch (err) {
@@ -81,7 +86,7 @@ const userLogin = async function (req, res) {
         const loginUser = await UserModel.findOne({ email: userName, password: password, });
         if (!loginUser) { return res.status(404).send({ status: false, message: "invalid login credentials" }); }
 
-        const token = jwt.sign({userId:loginUser._id.toString()}, "rass!@#512345ssar767", { expiresIn: "100s" });
+        const token = jwt.sign({userId:loginUser._id.toString()}, "rass!@#512345ssar767", { expiresIn: "10000s" });
 
         res.status(200).send({ status: true, message: "login successful", data: token });
 
