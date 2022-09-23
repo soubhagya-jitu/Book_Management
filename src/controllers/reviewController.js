@@ -98,7 +98,7 @@ const deleteReview = async function (req, res) {
         if (Object.keys(review).length == 0) return res.status(400).send({ status: false, message: "plzz give reviewId" });
         let book = req.params.bookId
         if (Object.keys(book).length == 0) return res.status(400).send({ status: false, message: "plzz give BookId" });
-     
+
         if (!mongoose.Types.ObjectId.isValid(book)) return res.status(400).send({ status: false, message: "bookId is not Valid" });
         if (!mongoose.Types.ObjectId.isValid(review)) return res.status(400).send({ status: false, message: "reviewId is not Valid" });
 
@@ -108,10 +108,10 @@ const deleteReview = async function (req, res) {
 
         if (findreview.bookId != book) return res.status(400).send({ status: false, msg: "bookId dose not macth" })
 
-        let updatedBook = await bookModel.updateOne({_id:book}, { $inc: { reviews: -1 } }, { new: true }).lean();
+        let updatedBook = await bookModel.updateOne({ _id: book }, { $inc: { reviews: -1 } }, { new: true }).lean();
 
         await reviewModel.updateOne((findreview), { $set: { isDeleted: true } })
-        return res.status(200).send({ status: true, msg: "successfully deleted"})
+        return res.status(200).send({ status: true, msg: "successfully deleted" })
     }
     catch (error) {
         res.status(500).send({ status: false, msg: error.message })
