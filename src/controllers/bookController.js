@@ -1,5 +1,4 @@
 const { default: mongoose } = require("mongoose");
-
 const bookModel = require('../models/bookModel')
 const userModel = require('../models/userModel')
 const reviewModel = require('../models/reviewModel')
@@ -7,7 +6,6 @@ const reviewModel = require('../models/reviewModel')
 let regexValidation = /^[\s]*[a-zA-z]+([\s\,\-]*[a-zA-z]+)*[\s]*$/;
 let regexValidISBN = /^[6-9]{3}[\-][\d]{10}$/;
 let regexValidReleasedAt = /^[0-9]{4}[-]{1}[0-9]{2}[-]{1}[0-9]{2}/;
-
 
 let timeElapsed = Date.now();
 let today = new Date(timeElapsed);
@@ -32,7 +30,6 @@ const createbook = async function (req, res) {
 
         if(req.decodedToken.userId!=userId) return res.status(403).send({status:false,msg:"you can't create a book by someone else userId"})
 
-        
         // Validation
         if (!title.match(regexValidation)) return res.status(400).send({ status: false, message: "please enter a valid title" })
         if (!excerpt.match(regexValidation)) return res.status(400).send({ status: false, message: "please enter a valid excerpt" })
