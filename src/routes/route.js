@@ -17,6 +17,9 @@ router.get("/books/:bookId",commonMw.authentication,bookController.getBooksDetai
 router.put("/books/:bookId",commonMw.authentication,commonMw.authorisation,bookController.putBooks)
 router.delete("/books/:bookId",commonMw.authentication,commonMw.authorisation,bookController.deleteBookParam)
 // ===================Reviews=============
-// router.delete("/books/:bookId/review/:reviewId",reviewController.deleteReview)
+router.post("/books/:bookId/review",reviewController.createReview)
+router.delete("/books/:bookId/review/:reviewId",reviewController.deleteReview)
+
+
 
 module.exports = router;
