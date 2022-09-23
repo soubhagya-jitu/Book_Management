@@ -88,12 +88,11 @@ const getBooks = async function (req, res) {
 const getBooksDetail = async function (req, res) {
     try {
         let bookId = req.params.bookId
-        if (!bookId) return res.status(400).send({ status: false, msg: "enter bookId to get the document" })
         if (!mongoose.Types.ObjectId.isValid(bookId)) {
             return res.status(400).send({ status: false, msg: "bookid validation failed" })
         }
 
-        let bookCheck = await bookModel.findById(bookId)
+        let bookCheck = await bookModel.findById(bookId).lean()
         if (!bookCheck) return res.status(404).send({ status: false, msg: "book not found" })
 
         let reviews = await reviewModel.find({ _id: bookId }).select({ _id: 1, bookId: 1, reviewedBy: 1, reviewedAt: 1, rating: 1, review: 1 })
@@ -127,17 +126,23 @@ const putBooks = async function (req, res) {
         let { title, excerpt, releasedAt, ISBN } = requestBody // Destructuring
 
         // validation
-
+        if(title) {
         if (!title.match(regexValidation)) return res.status(400).send({ status: false, message: "please enter a valid title" })
-        if (!excerpt.match(regexValidation)) return res.status(400).send({ status: false, message: "please enter a valid excerpt" })
-        if (!ISBN.match(regexValidISBN)) return res.status(400).send({ status: false, message: "please enter a valid ISBN starting 3digits should be (6-9) then (-) and after that 10digits" })
-        if (!releasedAt.match(regexValidReleasedAt)) return res.status(400).send({ status: false, message: "please enter a valid Date('YYYY-MM-DD')" })
-        
         let findtitle = await bookModel.findOne({ title: title });
-        if (findtitle) return res.status(409).send({ status: false, message: "title already exsits enter a different title" });
-
+        if (findtitle) return res.status(409).send({ status: false, message: "title already exists enter a different title" });
+        }
+        if(excerpt) {
+        if (!excerpt.match(regexValidation)) return res.status(400).send({ status: false, message: "please enter a valid excerpt" })
+        }
+        if(ISBN) {
+        if (!ISBN.match(regexValidISBN)) return res.status(400).send({ status: false, message: "please enter a valid ISBN starting 3digits should be (6-9) then (-) and after that 10digits" })
         let findISBN = await bookModel.findOne({ ISBN: ISBN });
-        if (findISBN) return res.status(409).send({ status: false, message: "ISBN already exsits enter a different ISBN" });
+        if (findISBN) return res.status(409).send({ status: false, message: "ISBN already exists enter a different ISBN" });
+        }
+        if(releasedAt) {
+        if (!releasedAt.match(regexValidReleasedAt)) return res.status(400).send({ status: false, message: "please enter a valid Date('YYYY-MM-DD')" })
+        }
+        
 
         let updateBook = await bookModel.findOneAndUpdate({ isDeleted: false, _id: bookId }, { $set: { title: title, excerpt: excerpt, releasedAt: releasedAt, ISBN: ISBN } }, { new: true })
 
@@ -153,14 +158,12 @@ const putBooks = async function (req, res) {
 const deleteBookParam = async function (req, res) {
     try {
         let requestParams = req.params
-        if (Object.keys(requestParams).length == 0) return res.status(400).send({ status: false, message: "plzz give BookId" });
-
-        bookId = requestQuery.bookId
+        bookId = requestParams.bookId
 
         let findBooks = await bookModel.findById(bookId)
-        if (!findBooks) return res.status(400).send({ status: false, msg: "Invalid bookId" })
+        if (!findBooks) return res.status(404).send({ status: false, msg: "No books found with given bookId" })
 
-        if (findBooks.isDeleted) return res.status(404).send({ status: false, msg: "Books already deleted" })
+        if (findBooks.isDeleted) return res.status(200).send({ status: false, msg: "Books already deleted" })
 
         await bookModel.updateOne((findBooks), { $set: { isDeleted: true, deletedAt: today } })
         return res.status(200).send({ status: true, msg: "successfully deleted" })
