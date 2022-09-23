@@ -28,6 +28,8 @@ const createbook = async function (req, res) {
         if (!subcategory) return res.status(400).send({ status: false, message: "Enter subcategory" });
         if (!releasedAt) return res.status(400).send({ status: false, message: "Enter releasedAt" });
 
+        if(req.decodeToken.userId!=userId) return res.status(403).send({status:false,msg:"you can't create a book by someone else userId"})
+
         // Validation
         if (!title.match(regexValidation)) return res.status(400).send({ status: false, message: "please enter a valid title" })
         if (!excerpt.match(regexValidation)) return res.status(400).send({ status: false, message: "please enter a valid excerpt" })
@@ -98,8 +100,6 @@ const getBooksDetail = async function (req, res) {
 
         return res.status(200).send({ status: true, data: bookCheck })
 
-        return res.status(200).send({ status: true, data: bookCheck })
-
     } catch (err) {
         res.status(500).send({ status: false, msg: err.message })
     }
@@ -116,7 +116,6 @@ const putBooks = async function (req, res) {
 
         if (Object.keys(requestQuery).length > 0) return res.status(400).send({ status: false, msg: "Please input the data in requestBody only" })
         if (Object.keys(requestBody).length == 0) return res.status(400).send({ status: false, msg: "Please input the details for updation" })
-        if (!mongoose.Types.ObjectId.isValid(bookId)) return res.status(400).send({ status: false, msg: "bookId validation failed" })
 
         let findBook = await bookModel.findOne({ _id: bookId })
         if (!findBook) return res.status(404).send({ status: false, msg: "No book found with this bookId" })

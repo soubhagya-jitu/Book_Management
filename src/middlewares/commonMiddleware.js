@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken")
+const { default: mongoose } = require("mongoose");
+const bookModel = require("../models/bookModel");
 
-//========================================== Authentication ============================================
+//========================================== Authentication ============================================//
 
 const authentication = function(req,res,next){
     try{
@@ -16,4 +18,15 @@ const authentication = function(req,res,next){
         res.status(500).send({status:false,msg:err.message})
     }
 }
-module.exports ={authentication}
+
+//========================================== Authorisation ============================================//
+
+const authorisation = async function(req,res,next) {
+    let bookId = req.params.bookId
+    if(!mongoose.Types.ObjectId.isValid(bookId)) return res.status(400).send({status:false,msg:"bookId validation failed"})
+    let findBookId = await bookModel.findById(bookId) 
+    let userId = findBookId.userId.toString()
+    if(req.decodeToken.userId != userId) return res.status(400).send({status:false,msg:"The user is not authorised"})
+    next()
+}
+module.exports = {authentication,authorisation}

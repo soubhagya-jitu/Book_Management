@@ -57,6 +57,9 @@ const isValidRequestBody = function (object) {
     return Object.keys(object).length > 0;
 };
 
+//=========================================  LOGIN USER  ==================================================================
+
+
 const userLogin = async function (req, res) {
 
     try {
@@ -78,17 +81,12 @@ const userLogin = async function (req, res) {
         const loginUser = await UserModel.findOne({ email: userName, password: password, });
         if (!loginUser) { return res.status(404).send({ status: false, message: "invalid login credentials" }); }
 
-        const userID = loginUser._id;
-        const payLoad = { userId: userID };
-        const secretKey = "rass!@#512345ssar767";
-
-        // creating JWT
-        const token = jwt.sign(payLoad, secretKey, { expiresIn: "100s" });
+        const token = jwt.sign({userId:loginUser._id.toString()}, "rass!@#512345ssar767", { expiresIn: "100s" });
 
         res.status(200).send({ status: true, message: "login successful", data: token });
 
     } catch (err) {
-        res.status(500).send({ error: err.message });
+        res.status(500).send({ status:false,error: err.message });
     }
 
   }

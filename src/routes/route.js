@@ -8,10 +8,10 @@ const commonMw = require("../middlewares/commonMiddleware")
 
 router.post("/register",userController.createUser);
 router.post("/login", userController.userLogin)
-router.post("/books",commonMw.authentication,bookController.createbook)
+router.post("/books",commonMw.authentication,commonMw.authorisation,bookController.createbook)
 router.get("/books",commonMw.authentication,bookController.getBooks)
 router.get("/books/:bookId",commonMw.authentication,bookController.getBooksDetail)
-router.put("/books/:bookId",commonMw.authentication,bookController.putBooks)
-router.delete("/books/:bookId",commonMw.authentication,bookController.deleteBookParam)
+router.put("/books/:bookId",commonMw.authentication,commonMw.authorisation,bookController.putBooks)
+router.delete("/books/:bookId",commonMw.authentication,commonMw.authorisation,bookController.deleteBookParam)
 
 module.exports = router;
