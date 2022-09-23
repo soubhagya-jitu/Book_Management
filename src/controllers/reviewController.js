@@ -95,22 +95,22 @@ const createReview = async (req, res) => {
 const deleteReview = async function (req, res) {
     try {
         let review = req.params.reviewId
-        if (Object.keys(review).length == 0) return res.status(400).send({ status: false, message: "plzz give reviewId" });
+        // if (Object.keys(review).length == 0) return res.status(400).send({ status: false, message: "plzz give reviewId" });
         let book = req.params.bookId
-        if (Object.keys(book).length == 0) return res.status(400).send({ status: false, message: "plzz give BookId" });
+        // if (Object.keys(book).length == 0) return res.status(400).send({ status: false, message: "plzz give BookId" });
 
         if (!mongoose.Types.ObjectId.isValid(book)) return res.status(400).send({ status: false, message: "bookId is not Valid" });
         if (!mongoose.Types.ObjectId.isValid(review)) return res.status(400).send({ status: false, message: "reviewId is not Valid" });
 
         let findreview = await reviewModel.findById(review)
-        if (!findreview) return res.status(400).send({ status: false, msg: "reviewId dose not exist" })
+        if (!findreview) return res.status(404).send({ status: false, msg: "reviewId does not exist" })
         if (findreview.isDeleted) return res.status(404).send({ status: false, msg: "review already deleted" })
 
-        if (findreview.bookId != book) return res.status(400).send({ status: false, msg: "bookId dose not macth" })
+        if (findreview.bookId != book) return res.status(400).send({ status: false, msg: "You can't delete someone else review" })
 
-        let updatedBook = await bookModel.updateOne({ _id: book }, { $inc: { reviews: -1 } }, { new: true }).lean();
-
+        await bookModel.updateOne({ _id: book }, { $inc: { reviews: -1 } })
         await reviewModel.updateOne((findreview), { $set: { isDeleted: true } })
+        
         return res.status(200).send({ status: true, msg: "successfully deleted" })
     }
     catch (error) {
