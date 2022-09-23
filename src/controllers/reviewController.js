@@ -79,13 +79,7 @@ const createReview = async (req, res) => {
 
         if (reviewCreated) {
             // USING .lean() to convert mongoose object to plain js object for adding a property temporarily
-            let updatedBook = await bookModel
-                .findOneAndUpdate(
-                    { _id: bookId },
-                    { $inc: { reviews: 1 } },
-                    { new: true }
-                )
-                .lean();
+            let updatedBook = await bookModel.findOneAndUpdate({ _id: bookId }, { $inc: { reviews: 1 } }, { new: true }).lean();
 
             updatedBook["reviewData"] = reviewCreated;
 
@@ -100,28 +94,28 @@ const createReview = async (req, res) => {
 // =========================================deletereview=========================
 const deleteReview = async function (req, res) {
     try {
-        let review = req.params
+        let review = req.params.reviewId
         if (Object.keys(review).length == 0) return res.status(400).send({ status: false, message: "plzz give reviewId" });
-        let book = req.params
+        let book = req.params.bookId
         if (Object.keys(book).length == 0) return res.status(400).send({ status: false, message: "plzz give BookId" });
+     
+        if (!mongoose.Types.ObjectId.isValid(book)) return res.status(400).send({ status: false, message: "bookId is not Valid" });
+        if (!mongoose.Types.ObjectId.isValid(review)) return res.status(400).send({ status: false, message: "reviewId is not Valid" });
 
-        let bookId = book.bookId
-        if (!mongoose.Types.ObjectId.isValid(bookId)) return res.status(400).send({ status: false, message: "bookId is not Valid" });
-        let reviewId = book.reviewId
-        if (!mongoose.Types.ObjectId.isValid(reviewId)) return res.status(400).send({ status: false, message: "reviewId is not Valid" });
-
-        let findreview = await reviewModel.findById(reviewId)
-        if (!findreview) return res.status(400).send({ status: false, msg: "Invalid reviewId" })
+        let findreview = await reviewModel.findById(review)
+        if (!findreview) return res.status(400).send({ status: false, msg: "reviewId dose not exist" })
         if (findreview.isDeleted) return res.status(404).send({ status: false, msg: "review already deleted" })
 
-        if (findreview.bookId != bookId) return res.status(400).send({ status: false, msg: "Invalid bookId" })
+        if (findreview.bookId != book) return res.status(400).send({ status: false, msg: "bookId dose not macth" })
+
+        let updatedBook = await bookModel.updateOne({_id:book}, { $inc: { reviews: -1 } }, { new: true }).lean();
 
         await reviewModel.updateOne((findreview), { $set: { isDeleted: true } })
-        return res.status(200).send({ status: true, msg: "successfully deleted" })
+        return res.status(200).send({ status: true, msg: "successfully deleted"})
     }
     catch (error) {
         res.status(500).send({ status: false, msg: error.message })
     }
 }
 
-module.exports = { deleteReview,createReview}
+module.exports = { deleteReview, createReview }
