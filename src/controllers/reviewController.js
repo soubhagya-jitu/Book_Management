@@ -47,19 +47,13 @@ const createReview = async (req, res) => {
                 .send({ status: false, message: "please provide a valid rating" });
         }
 
-        if (!review) {
-            return res
-                .status(400)
-                .send({ status: false, message: "review is a required field" });
-        }
-
         let date = Date.now();
         let details = {
             bookId: bookId,
-            reviewedBy: reviewedBy.trim(),
+            reviewedBy: reviewedBy,
             reviewedAt: date,
             rating: rating,
-            review: review.trim(),
+            review: review,
         };
         const isValid = function (value) {
             if (typeof value == "undefined" || value == null) return false;

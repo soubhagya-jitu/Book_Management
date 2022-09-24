@@ -65,6 +65,7 @@ const getBooks = async function (req, res) {
         if (Object.keys(requestQuery).length > 3) {
             return res.status(400).send({ status: false, msg: "Invalid entry in requestQuery" })
         }
+        if(!(req.query.userId) && !(req.query.category) && !(req.query.subcategory)) return res.status(400).send({status:false,msg:"you have to enter only userId,category,subcategory"})
         if (requestQuery.userId) {
             if (!mongoose.Types.ObjectId.isValid(requestQuery.userId)) {
                 return res.status(400).send({ status: false, msg: "userid validation failed" })
@@ -92,7 +93,7 @@ const getBooksDetail = async function (req, res) {
         let bookCheck = await bookModel.findById(bookId).lean()
         if (!bookCheck) return res.status(404).send({ status: false, msg: "book not found" })
 
-        let reviews = await reviewModel.find({ _id: bookId }).select({ _id: 1, bookId: 1, reviewedBy: 1, reviewedAt: 1, rating: 1, review: 1 })
+        let reviews = await reviewModel.find({ bookId: bookId }).select({ _id: 1, bookId: 1, reviewedBy: 1, reviewedAt: 1, rating: 1, review: 1 })
 
         // bookCheck=bookCheck.toObject();
         bookCheck["reviewsData"] = reviews
