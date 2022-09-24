@@ -8,7 +8,7 @@ let pincodeValidation = /^[1-9]{1}[0-9]{5}|[1-9]{1}[0-9]{3}\\s[0-9]{3}/
 const createUser = async function (req, res) {
   try {
     let requestBody = req.body;
-    const { title, name, phone, email, password,address } = requestBody //Destructuring
+    const {title, name, phone, email, password,address } = requestBody //Destructuring
 
     if (!Object.keys(requestBody).length) return res.send({ status: false, msg: "Enter some data" })
 
@@ -31,7 +31,7 @@ const createUser = async function (req, res) {
 
     //Email validation
     if (!email) return res.status(400).send({ status: false, msg: "email is mandatory" })
-    if (!(/^[a-z0-9_]{3,}@[a-z]{3,}[.]{1}[a-z]{3,6}$/).test(email)) {
+    if (!(/^[a-z0-9_]{1,}@[a-z]{3,}[.]{1}[a-z]{3,6}$/).test(email)) {
       return res.status(400).send({ status: false, message: "Email is invalid" })
     }
     let emailCheck = await UserModel.findOne({ email: email })

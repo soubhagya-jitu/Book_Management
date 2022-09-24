@@ -23,7 +23,7 @@ const createReview = async (req, res) => {
                 .send({ status: false, message: "this is not a valid bookId" });
         }
 
-        let findBook = await bookModel.findOne({ bookId });
+        let findBook = await bookModel.findOne({ _id:bookId });
         if (!findBook) {
             return res
                 .status(404)
@@ -32,8 +32,8 @@ const createReview = async (req, res) => {
 
         if (findBook.isDeleted) {
             return res
-                .status(404)
-                .send({ status: false, message: "This book has been deleted" });
+                .status(200)
+                .send({ status: true, message: "This book has been deleted" });
         }
 
         if (!rating) {
@@ -41,7 +41,7 @@ const createReview = async (req, res) => {
                 .status(400)
                 .send({ status: false, message: "rating is a required field" });
         }
-        if (!(rating <= 5 && rating >= 1)) {
+        if (!(1<=rating<=5)) {
             return res
                 .status(400)
                 .send({ status: false, message: "please provide a valid rating" });
@@ -75,7 +75,7 @@ const createReview = async (req, res) => {
             // USING .lean() to convert mongoose object to plain js object for adding a property temporarily
             let updatedBook = await bookModel.findOneAndUpdate({ _id: bookId }, { $inc: { reviews: 1 } }, { new: true }).lean();
 
-            updatedBook["reviewData"] = reviewCreated;
+            updatedBook["reviewsData"] = reviewCreated;
 
             return res
                 .status(201)
@@ -85,30 +85,33 @@ const createReview = async (req, res) => {
         return res.status(500).send({ status: false, message: err.message });
     }
 };
-// =========================================deletereview=========================
+// =========================================deletereview=============================//
 const deleteReview = async function (req, res) {
     try {
         let review = req.params.reviewId
-        // if (Object.keys(review).length == 0) return res.status(400).send({ status: false, message: "plzz give reviewId" });
         let book = req.params.bookId
-        // if (Object.keys(book).length == 0) return res.status(400).send({ status: false, message: "plzz give BookId" });
 
         if (!mongoose.Types.ObjectId.isValid(book)) return res.status(400).send({ status: false, message: "bookId is not Valid" });
         if (!mongoose.Types.ObjectId.isValid(review)) return res.status(400).send({ status: false, message: "reviewId is not Valid" });
 
-        let findreview = await reviewModel.findById(review)
-        if (!findreview) return res.status(404).send({ status: false, msg: "reviewId does not exist" })
-        if (findreview.isDeleted) return res.status(404).send({ status: false, msg: "review already deleted" })
+        let findBook = await bookModel.findById(book)
+        if (!findBook) return res.status(404).send({ status: false, message: "book does not exist" })
+        if (findBook.isDeleted) return res.status(404).send({ status: false, message: "book already deleted you can't delete review" })
 
-        if (findreview.bookId != book) return res.status(400).send({ status: false, msg: "You can't delete someone else review" })
+
+        let findreview = await reviewModel.findById(review)
+        if (!findreview) return res.status(404).send({ status: false, message: "reviewId does not exist" })
+        if (findreview.isDeleted) return res.status(404).send({ status: false, message: "review already deleted" })
+
+        if (findreview.bookId != book) return res.status(400).send({ status: false, message: "You can't delete someone else review" })
 
         await bookModel.updateOne({ _id: book }, { $inc: { reviews: -1 } })
         await reviewModel.updateOne((findreview), { $set: { isDeleted: true } })
         
-        return res.status(200).send({ status: true, msg: "successfully deleted" })
+        return res.status(200).send({ status: true, message: "successfully deleted" })
     }
     catch (error) {
-        res.status(500).send({ status: false, msg: error.message })
+        res.status(500).send({ status: false, message: error.message })
     }
 }
 
