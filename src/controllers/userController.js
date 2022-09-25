@@ -15,7 +15,7 @@ const createUser = async function (req, res) {
 
         //title validation
         if (!title) return res.status(400).send({ status: false, msg: "title is mandatory" })
-        if (title != "Mr" && title != "Mrs" && title != "Miss") return res.status(400).send({ status: false, msg: `title can contain only "Mr","Mrs" os "Miss"` })
+        if (title != "Mr" && title != "Mrs" && title != "Miss") return res.status(400).send({ status: false, msg: `title can contain only "Mr","Mrs" or "Miss"` })
 
         //Name validation
         if (!name) return res.status(400).send({ status: false, msg: "name is mandatory" })
@@ -86,7 +86,7 @@ const userLogin = async function (req, res) {
         const loginUser = await UserModel.findOne({ email: userName, password: password, });
         if (!loginUser) { return res.status(404).send({ status: false, message: "invalid login credentials" }); }
 
-        const token = jwt.sign({userId:loginUser._id.toString()}, "rass!@#512345ssar767", { expiresIn: "1000000s" });
+        const token = jwt.sign({userId:loginUser._id.toString()}, "rass!@#512345ssar767", { expiresIn: "50000s" });
 
         res.status(200).send({ status: true, message: "login successful", data: token });
 

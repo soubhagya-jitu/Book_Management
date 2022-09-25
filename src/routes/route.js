@@ -18,7 +18,12 @@ router.put("/books/:bookId",commonMw.authentication,commonMw.authorisation,bookC
 router.delete("/books/:bookId",commonMw.authentication,commonMw.authorisation,bookController.deleteBookParam)
 // ===================Reviews=============
 router.post("/books/:bookId/review",reviewController.createReview)
+router.put("/books/:bookId/review/:reviewId",reviewController.updateReview)
 router.delete("/books/:bookId/review/:reviewId",reviewController.deleteReview)
+
+router.all("/*", function (req, res) {
+    res.status(400).send({ status: false, message: "Invalid path params" });
+  });
 
 
 

@@ -7,7 +7,7 @@ const bookModel = require("../models/bookModel");
 const authentication = function (req, res, next) {
     try {
         let token = req.headers["x-api-key"];
-        if (!token) return res.status(401).send({ status: false, msg: " token must be present " })
+        if (!token) return res.status(401).send({ status: false, msg: " token must be present for authentication " })
 
         jwt.verify(token, "rass!@#512345ssar767", {ignoreExpiration:true},function (err, decodedToken) {
             if (err) {

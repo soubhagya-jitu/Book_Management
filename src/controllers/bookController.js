@@ -19,22 +19,27 @@ const createbook = async function (req, res) {
         const { title, excerpt, userId, ISBN, category, subcategory, releasedAt } = data //Destructuring 
 
         // Mandatory keys validation
-        if (!title) return res.status(400).send({ status: false, message: "Enter title" });
-        if (!excerpt) return res.status(400).send({ status: false, message: "Enter excerpt" });
-        if (!userId) return res.status(400).send({ status: false, message: "Enter userId" });
-        if (!ISBN) return res.status(400).send({ status: false, message: "Enter ISBN" });
-        if (!category) return res.status(400).send({ status: false, message: "Enter category" });
-        if (!subcategory) return res.status(400).send({ status: false, message: "Enter subcategory" });
-        if (!releasedAt) return res.status(400).send({ status: false, message: "Enter releasedAt" });
-
-        if(req.decodedToken.userId!=userId) return res.status(403).send({status:false,message:"you can't create a book by someone else userId"})
-
-        // Validation
+        if (!title) return res.status(400).send({ status: false, message: "title is manadatory" });
         if (!title.match(regexValidation)) return res.status(400).send({ status: false, message: "please enter a valid title" })
+
+        if (!excerpt) return res.status(400).send({ status: false, message: " excerpt  is manadatory" });
         if (!excerpt.match(regexValidation)) return res.status(400).send({ status: false, message: "please enter a valid excerpt" })
-        if (!ISBN.match(regexValidISBN)) return res.status(400).send({ status: false, message: "please enter a valid ISBN starting 3digits should be (6-9) then (-) and after that 10digits" })
-        if (!releasedAt.match(regexValidReleasedAt)) return res.status(400).send({ status: false, message: "please enter a valid Date('YYYY-MM-DD')" })
+
+        if (!userId) return res.status(400).send({ status: false, message: " userId is manadatory" });
         if (!mongoose.Types.ObjectId.isValid(userId)) return res.status(400).send({ status: false, message: "userId is not Valid" });
+
+        if (!ISBN) return res.status(400).send({ status: false, message: " ISBN is manadatory" });
+        if (!ISBN.match(regexValidISBN)) return res.status(400).send({ status: false, message: "please enter a valid ISBN starting 3digits should be (6-9) then (-) and after that 10digits" })
+
+        if (!category) return res.status(400).send({ status: false, message: " category is manadatory" });
+
+        if (!subcategory) return res.status(400).send({ status: false, message: " subcategory is manadatory" });
+
+        if (!releasedAt) return res.status(400).send({ status: false, message: " releasedAt is manadatory" });
+        if (!releasedAt.match(regexValidReleasedAt)) return res.status(400).send({ status: false, message: "please enter a valid Date('YYYY-MM-DD')" })
+
+        if(req.decodedToken.userId!=userId) return res.status(403).send({status:false,message:"You are not authorised to create book by someone else userid"})
+       
 
         let correctuserId = await userModel.findById(userId)
         if (!correctuserId) return res.status(404).send({ status: false, message: "userId does not exist" })
