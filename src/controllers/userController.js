@@ -4,22 +4,26 @@ const jwt = require("jsonwebtoken");
 let pincodeValidation = /^[1-9]{1}[0-9]{5}|[1-9]{1}[0-9]{3}\\s[0-9]{3}/
 
 //=========================================  CREATE USER  ==================================================================
+const isValid = function (value) {
+  if (typeof value == "undefined" || value == null) return false;
+  if (typeof value == "string" && value.trim().length > 0) return true;
+};
 
 const createUser = async function (req, res) {
   try {
     let requestBody = req.body;
-    const {title, name, phone, email, password,address } = requestBody //Destructuring
+    const { title, name, phone, email, password, address } = requestBody //Destructuring
 
     if (!Object.keys(requestBody).length) return res.send({ status: false, msg: "Enter some data" })
 
 
-        //title validation
-        if (!title) return res.status(400).send({ status: false, msg: "title is mandatory" })
-        if (title != "Mr" && title != "Mrs" && title != "Miss") return res.status(400).send({ status: false, msg: `title can contain only "Mr","Mrs" or "Miss"` })
+    //title validation
+    if (!title) return res.status(400).send({ status: false, msg: "title is mandatory" })
+    if (title != "Mr" && title != "Mrs" && title != "Miss") return res.status(400).send({ status: false, msg: `title can contain only "Mr","Mrs" or "Miss"` })
 
-        //Name validation
-        if (!name) return res.status(400).send({ status: false, msg: "name is mandatory" })
-        if (!(/^[a-zA-Z\. ]*$/).test(name)) return res.status(400).send({ status: false, msg: "name is not valid" })
+    //Name validation
+    if (!name) return res.status(400).send({ status: false, msg: "name is mandatory" })
+    if (!(/^[a-zA-Z\. ]*$/).test(name)) return res.status(400).send({ status: false, msg: "name is not valid" })
 
     //Phone validation
     if (!phone) return res.status(400).send({ status: false, msg: "phone is mandatory" })
@@ -42,24 +46,31 @@ const createUser = async function (req, res) {
     if (!(/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,15}$/).test(password)) {
       return res.status(400).send({ status: false, message: "password is invalid ,it should be of minimum 8 digits and maximum of 15 and should have atleast one special character and one number & one uppercase letter" })
     }
-    if(address) {
-    if(!address.pincode.match(pincodeValidation)) return res.status(400).send({ status: false, message: "please enter a valid pincode" })
+    if (address) {
+      if (address.pincode) {
+        if (!address.pincode.match(pincodeValidation)) return res.status(400).send({ status: false, message: "please enter a valid pincode" })
+      }
+      if(address.city) {
+        if (!(/^[a-zA-Z\. ]*$/).test(address.city)) return res.status(400).send({ status: false, message: "please enter a valid city" })
+      }
+      
+      if(address.street) {
+  
+        if (!(/^[a-zA-Z\. ]*$/).test(address.street) ) return res.status(400).send({ status: false, message: "please enter a valid street" })
+      }
     }
     let created = await UserModel.create(requestBody)
-    res.status(201).send({ status: true,msg:"User successfully created",data: created })
+    res.status(201).send({ status: true, msg: "User successfully created", data: created })
   }
   catch (err) {
-    res.status(500).send({status:false,msg:err.message})
+    res.status(500).send({ status: false, msg: err.message })
   }
 }
 // ==========================================login===========================================
-const isValid = function (value) {
-    if (typeof value == "undefined" || value == null) return false;
-    if (typeof value == "string" && value.trim().length > 0) return true;
-};
+
 
 const isValidRequestBody = function (object) {
-    return Object.keys(object).length > 0;
+  return Object.keys(object).length > 0;
 };
 
 //=========================================  LOGIN USER  ==================================================================
@@ -67,33 +78,33 @@ const isValidRequestBody = function (object) {
 
 const userLogin = async function (req, res) {
 
-    try {
-        const requestBody = req.body;
+  try {
+    const requestBody = req.body;
 
-        if (!isValidRequestBody(requestBody)) {
-            return res.status(400).send({ status: false, message: "please provide input credentials" });
-        }
-
-        const userName = requestBody.email;
-        const password = requestBody.password;
-
-        // validating userName 
-        if (!isValid(userName)) { return res.status(400).send({ status: false, message: "email is required" }); }
-
-        //validating password
-        if (!isValid(password)) { return res.status(400).send({ status: false, message: "password is required" }); }
-
-        const loginUser = await UserModel.findOne({ email: userName, password: password, });
-        if (!loginUser) { return res.status(404).send({ status: false, message: "invalid login credentials" }); }
-
-        const token = jwt.sign({userId:loginUser._id.toString()}, "rass!@#512345ssar767", { expiresIn: "50000s" });
-
-        res.status(200).send({ status: true, message: "login successful", data: token });
-
-    } catch (err) {
-        res.status(500).send({ status:false,error: err.message });
+    if (!isValidRequestBody(requestBody)) {
+      return res.status(400).send({ status: false, message: "please provide input credentials" });
     }
 
+    const userName = requestBody.email;
+    const password = requestBody.password;
+
+    // validating userName 
+    if (!isValid(userName)) { return res.status(400).send({ status: false, message: "email is required" }); }
+
+    //validating password
+    if (!isValid(password)) { return res.status(400).send({ status: false, message: "password is required" }); }
+
+    const loginUser = await UserModel.findOne({ email: userName, password: password, });
+    if (!loginUser) { return res.status(404).send({ status: false, message: "invalid login credentials" }); }
+
+    const token = jwt.sign({ userId: loginUser._id.toString() }, "rass!@#512345ssar767", { expiresIn: "50000s" });
+
+    res.status(200).send({ status: true, message: "login successful", data: token });
+
+  } catch (err) {
+    res.status(500).send({ status: false, error: err.message });
   }
+
+}
 module.exports = { createUser, userLogin }
 

@@ -41,7 +41,7 @@ const createReview = async (req, res) => {
                 .status(400)
                 .send({ status: false, message: "rating is a required field" });
         }
-        if (!(rating>=1 && rating<=5)) {
+        if (!(/^[1-5]+$/.test(rating))) {
             return res
                 .status(400)
                 .send({ status: false, message: "please provide a valid rating between 1-5" });

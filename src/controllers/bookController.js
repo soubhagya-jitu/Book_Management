@@ -5,9 +5,10 @@ const reviewModel = require('../models/reviewModel')
 
 let regexValidation = /^[a-zA-z]+/;
 let regexValidISBN = /^[6-9]{3}[\-][\d]{10}$/;
-let regexValidReleasedAt = /^[0-9]{4}[-]{1}[0-9]{2}[-]{1}[0-9]{2}/;
+let regexValidReleasedAt = /^(?!0000)\d{4}-(?!00)(?!13)(?!14)(?!15)(?!16)(?!17)(?!18)(?!19)[0-1]{1}\d{1}-(?!00)(?!33)(?!32)(?!34)(?!35)(?!36)(?!37)(?!38)(?!39)[0-3]{1}\d{1}$/;
 let timeElapsed = Date.now();
 let today = new Date(timeElapsed);
+
 
 //======================================= CREATE BOOK =======================================================
 
